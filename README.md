@@ -19,3 +19,10 @@
 ### Very Optional
 - Graphical interface
 - Dymanic Fields (Can add new fields depending on what is interesting to the user)
+
+## Submodules
+- UI Handler
+- List Handler
+- Integration tests
+
+Follow this: https://dev.to/sgchris/how-to-structure-a-rust-project-idiomatically-500k
