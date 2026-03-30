@@ -74,11 +74,11 @@ pub mod ui {
 
     fn add_to_list(rl: &mut RatedList) {
         println!("Adding to list");
-        // let name: String = get_input("Enter name of entry".to_owned());
+        // let name: String = get_input("Enter name of entry".to_owned()).trim().to_owned();
         // let date: DateTime<Local> = Local::now();
-        // // let rating: u32 = get_input("Enter rating".to_owned());
-        // let note: String = get_input("Enter note (may leave empty)".to_owned());
-        // list_add(rl, name, date, 0, note)
+        // let rating: u32 = get_input("Enter rating".to_owned()).trim().parse().expect("Rating was incorrectly entered...");
+        // let note: String = get_input("Enter note (may leave empty)".to_owned()).trim().to_owned();
+        // list_add(rl, name, date, rating, note);
     }
 
     fn remove_from_list(rl: &mut RatedList) {
