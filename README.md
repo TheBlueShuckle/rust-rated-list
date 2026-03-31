@@ -2,23 +2,23 @@
 
 ## Specifications
 ### Basic Requirements
-- Create, Add, Remove, Edit, Destroy
-    - Entries contains: Name, Date, Stars, Notess
-- Update ratings
-- Save lists to hard drive
-- Load lists on startup
+- [x] Create, Add, Remove, Edit, Destroy
+    - [x] Entries contains: Name, Date, Stars, Notess
+- [x] Update ratings
+- [ ] Save lists to hard drive
+- [ ] Load lists on startup
 
 ### Optional
-- Save rating history of entry (show previous ratings of the entry)
-- Create multiple lists and swaping between them
-- When creating list, pick between rating systems
-- Export list to MD-file
-- Watchlists
-- Sorting lists
+- [ ] Save rating history of entry (show previous ratings of the entry)
+- [ ] Create multiple lists and swaping between them
+- [ ] When creating list, pick between rating systems
+- [ ] Export list to MD-file
+- [ ] Watchlists
+- [ ] Sorting lists
 
 ### Very Optional
-- Graphical interface
-- Dymanic Fields (Can add new fields depending on what is interesting to the user)
+- [ ] Graphical interface
+- [ ] Dymanic Fields (Can add new fields depending on what is interesting to the user)
 
 ## Submodules
 - UI Handler
