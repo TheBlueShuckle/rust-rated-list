@@ -1,6 +1,6 @@
 pub mod ui {
     use crate::list_handler::RatedList;
-    use crate::list_handler::list_handler::{list_add, list_edit, list_remove, list_to_string};
+    use crate::list_handler::list_handler::{list_add, list_edit, list_remove, list_to_string, list_update_rating};
     use crate::list_handler::{self, list_handler::list_build};
     use std::io::{stdin};
 
@@ -28,6 +28,7 @@ pub mod ui {
         println!("| A - Add to list                |");
         println!("| R - Remove from list           |");
         println!("| E - Edit entry in list         |");
+        println!("| U - Update Rating              |");
         println!("| L - Print list                 |");
         println!("| Q - Quit                       |");
         println!("+--------------------------------+");
@@ -50,7 +51,7 @@ pub mod ui {
         let first_char: char = input.to_lowercase().chars().nth(0).unwrap(); 
 
         match first_char {
-            'a' | 'r' | 'e' | 'l' | 'q' => return first_char,
+            'a' | 'r' | 'e' | 'u'| 'l' | 'q' => return first_char,
             _ => return '_'
         }
     }
@@ -60,6 +61,7 @@ pub mod ui {
             'a' => add_to_list(rl),
             'r' => remove_from_list(rl),
             'e' => edit_list(rl),
+            'u' => update_rating(rl),
             'l' => print_list(rl),
             'q' => return true,
             _ => return false // TODO: Should probably return an error or whatever
@@ -90,6 +92,13 @@ pub mod ui {
         let new_note: String = get_input(String::from("Enter new note if you wish to change it")).trim().to_owned();
 
         list_edit(rl, &mut name, new_name, new_rating, new_note);
+    }
+
+    fn update_rating(rl: &mut RatedList) {
+        let mut name: String = get_input(String::from("Enter name of entry to update")).trim().to_owned();
+        let new_rating: u32 = get_input(String::from("Enter new rating")).trim().parse().expect("Rating was incorrectly entered...");
+
+        list_update_rating(rl, &mut name, new_rating);
     }
 
     fn print_list(rl: &mut RatedList) {

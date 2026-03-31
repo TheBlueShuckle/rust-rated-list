@@ -102,6 +102,11 @@ pub mod list_handler {
         }
     }
 
+    pub fn list_update_rating(rl: &mut RatedList, name: &mut String, new_rating: u32) {
+        let to_edit: &mut Entry = rl.get(name);
+        to_edit.rating = new_rating;
+    }
+
     pub fn list_to_string(rl: &mut RatedList) -> String {
         return rl.to_string();
     }
