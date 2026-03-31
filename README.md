@@ -2,11 +2,11 @@
 
 ## Specifications
 ### Basic Requirements
-- Create, Add, Remove, Edit, Destroy
-    - Entries contains: Name, Date, Stars, Notes
-- Update ratings
-- Save lists to hard drive
-- Load lists on startup
+- Create, Add, Remove, Edit, Destroy - [x]
+    - Entries contains: Name, Date, Stars, Notes - [x]
+- Update ratings - [ ]
+- Save lists to hard drive - [ ]
+- Load lists on startup - [ ]
 
 ### Optional
 - Save rating history of entry (show previous ratings of the entry)
