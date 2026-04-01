@@ -5,16 +5,17 @@
 - [x] Create, Add, Remove, Edit, Destroy
     - [x] Entries contains: Name, Date, Stars, Notess
 - [x] Update ratings
-- [ ] Lists stores name, type of rating system
-- [ ] Save lists to hard drive
+- [x] Lists stores name, type of rating system
+- [ ] Save lists to file
 - [ ] Load lists on startup
 
 ### Optional
 - [ ] Save rating history of entry (show previous ratings of the entry)
-- [ ] Create multiple lists and swaping between them
+- [ ] Create multiple lists and swapping between them
 - [ ] Export list to MD-file
 - [ ] Watchlists
 - [ ] Sorting lists
+- [ ] Change date of rating
 
 ### Very Optional
 - [ ] Graphical interface

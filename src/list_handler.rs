@@ -1,19 +1,108 @@
 use std::collections::HashMap;
 use chrono::{DateTime, Datelike, Local};
 
+pub enum RatingSystem {
+    FiveStars,
+    TenStars,
+    TenHalfStars,
+}
+
+impl Clone for RatingSystem {
+    fn clone(&self) -> Self {
+        match self {
+            RatingSystem::FiveStars => RatingSystem::FiveStars,
+            RatingSystem::TenStars => RatingSystem::TenStars,
+            RatingSystem::TenHalfStars => RatingSystem::TenHalfStars,
+        }
+    }
+}
+
+impl RatingSystem {
+    fn rating_to_string(&self, rating: u32) -> String {
+        let mut string_rating: String = String::new();
+
+        match self {
+            RatingSystem::FiveStars => {
+                let mut count: u32 = 0;
+
+                while count < 5 {
+                    if count >= rating {
+                        string_rating.push_str("☆ ");
+                    }
+
+                    else {
+                        string_rating.push_str("★ ");
+                    }
+
+                    count += 1;
+                }
+
+                return string_rating;
+            }
+
+            RatingSystem::TenStars => {
+                let mut count: u32 = 0;
+
+                while count < 10 {
+                    if count >= rating {
+                        string_rating.push_str("☆ ");
+                    }
+
+                    else {
+                        string_rating.push_str("★ ");
+                    }
+
+                    count += 1;
+                }
+
+                return string_rating;
+            }
+            RatingSystem::TenHalfStars => {
+                let mut count: u32 = 0;
+
+                while count < 10 {
+                    if count > rating {
+                        string_rating.push_str("☆ ");
+                    }
+
+                    else if rating % 2 != 0 && count + 2 > rating {
+                        string_rating.push_str("½ ");
+                    }
+
+                    else {
+                        string_rating.push_str("★ ");
+                    }
+
+                    count += 2;
+                }
+
+                return string_rating;
+            }
+        }
+    }
+}
+
 struct Entry {
     name: String,
     date: DateTime<Local>,
     rating: u32,
+    system: RatingSystem,
     note: String,
 }
 
 impl Entry {
-    fn new(name: String, date: DateTime<Local>, rating: u32, note: String) -> Entry {
+    fn new(
+        name: String, 
+        date: DateTime<Local>, 
+        rating: u32, 
+        system: RatingSystem, 
+        note: String
+    ) -> Entry {
         return Entry {
             name,
             date,
             rating,
+            system,
             note
         };
     }
@@ -21,7 +110,7 @@ impl Entry {
     fn to_string(&mut self) -> String {
         return format!("{0}:\n    {1}\n    {2}-{3}-{4}\n    {5}\n", 
             self.name, 
-            self.rating, 
+            self.system.rating_to_string(self.rating),
             self.date.year(), 
             self.date.month(), 
             self.date.day(), 
@@ -29,19 +118,19 @@ impl Entry {
     }
 }
 
-pub struct RatedList { // TODO: Should have a name
-    // name: String, 
-    // system: Enum 
+pub struct RatedList { 
+    name: String, 
+    system: RatingSystem,
     table: HashMap<String, Entry>,
 }
 
 impl RatedList {
-    fn new() -> RatedList {
-        RatedList { table: HashMap::new() }
+    fn new(name: String, system: RatingSystem) -> RatedList {
+        RatedList { name, system, table: HashMap::new() }
     }
 
     fn add(&mut self, name: String, entry: Entry) {
-        self.table.insert(name, entry); // Entry should probably be mutable
+        self.table.insert(name, entry);
     }
 
     fn remove(&mut self, name: &mut String) {
@@ -65,19 +154,30 @@ impl RatedList {
 
 pub mod list_handler {
     use chrono::{DateTime, Local};
-    use crate::list_handler::{Entry, RatedList};
+    use crate::list_handler::{Entry, RatedList, RatingSystem};
 
-    fn entry_build(name: String, date: DateTime<Local>, rating: u32, note: String) -> Entry {
-        return Entry::new(name, date, rating, note);
+    fn entry_build(
+        name: String, 
+        date: DateTime<Local>, 
+        rating: u32, 
+        system: RatingSystem, 
+        note: String
+    ) -> Entry {
+        return Entry::new(name, date, rating, system, note);
     }
 
-    pub fn list_build() -> RatedList {
-        return RatedList::new();
+    pub fn list_build(name: String, system: RatingSystem) -> RatedList {
+        return RatedList::new(name, system);
     }
 
     pub fn list_add(rl: &mut RatedList, name: String, rating: u32, note: String) {
         let date: DateTime<Local> = Local::now();
-        let new_entry: Entry = entry_build(name.clone(), date, rating, note);
+        let new_entry: Entry = entry_build(
+                                name.clone(), 
+                                date, 
+                                rating, 
+                                rl.system.clone(),
+                                note);
 
         rl.add(name, new_entry);
     }
@@ -86,7 +186,13 @@ pub mod list_handler {
         rl.remove(name);
     }
 
-    pub fn list_edit(rl: &mut RatedList, name: &mut String, new_name: String, new_rating: u32, new_note: String) {
+    pub fn list_edit(
+        rl: &mut RatedList, 
+        name: &mut String, 
+        new_name: String, 
+        new_rating: u32, 
+        new_note: String
+    ) {
         let to_edit: &mut Entry = rl.get(name);
 
         if !new_name.is_empty() {

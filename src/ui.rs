@@ -1,13 +1,22 @@
 pub mod ui {
     use crate::list_handler::RatedList;
-    use crate::list_handler::list_handler::{list_add, list_edit, list_remove, list_to_string, list_update_rating};
+    use crate::list_handler::list_handler::{
+        list_add, 
+        list_edit, 
+        list_remove, 
+        list_to_string, 
+        list_update_rating
+    };
     use crate::list_handler::{self, list_handler::list_build};
     use std::io::{stdin};
 
     pub fn run(lists: &mut Vec<list_handler::RatedList>) {
         let mut is_running: bool = true;
 
-        lists.push(list_build()); // FIXME: INDEX SHOULD NOT BE 0 
+        lists.push(list_build(
+            String::from("New List"),
+            list_handler::RatingSystem::TenHalfStars
+        ));
 
         while is_running  {
             print_menu();
@@ -72,31 +81,68 @@ pub mod ui {
 
     fn add_to_list(rl: &mut RatedList) {
         println!(">>>Adding to list<<<");
-        let name: String = get_input(String::from("Enter name of entry")).trim().to_owned();
-        let rating: u32 = get_input(String::from("Enter rating")).trim().parse().expect("Rating was incorrectly entered...");
-        let note: String = get_input(String::from("Enter note (may leave empty)")).trim().to_owned();
+        let name: String = get_input(String::from("Enter name of entry"))
+                            .trim()
+                            .to_owned();
+        let rating: u32 = get_input(String::from("Enter rating"))
+                            .trim()
+                            .parse()
+                            .expect("Rating was incorrectly entered...");
+        let note: String = get_input(String::from("Enter note (may leave empty)"))
+                            .trim()
+                            .to_owned();
         list_add(rl, name, rating, note);
     }
 
     fn remove_from_list(rl: &mut RatedList) {
         println!(">>>Removing from list<<<");
-        let mut name: String = get_input(String::from("What entry do you want to remove?")).trim().to_owned();
+        let mut name: String = get_input(String::from(
+                                    "What entry do you want to remove?"
+                                ))
+                                .trim()
+                                .to_owned();
         list_remove(rl, &mut name);
         return;
     }
 
     fn edit_list(rl: &mut RatedList) {
-        let mut name: String = get_input(String::from("Enter current name of entry to edit")).trim().to_owned();
-        let new_name: String = get_input(String::from("Enter new name if you wish to change it")).trim().to_owned();
-        let new_rating: u32 = get_input(String::from("Enter new rating if you wish to change it")).trim().parse().expect("Rating was incorrectly entered...");
-        let new_note: String = get_input(String::from("Enter new note if you wish to change it")).trim().to_owned();
+        let mut name: String = get_input(String::from(
+                                    "Enter current name of entry to edit"
+                                ))
+                                .trim()
+                                .to_owned();
+        let new_name: String = get_input(String::from(
+                                    "Enter new name if you wish to change it"
+                                ))
+                                .trim()
+                                .to_owned();
+        let new_rating: u32 = get_input(String::from(
+                                    "Enter new rating if you wish to change it"
+                                ))
+                                .trim()
+                                .parse()
+                                .expect("Rating was incorrectly entered...");
+        let new_note: String = get_input(String::from(
+                                    "Enter new note if you wish to change it"
+                                ))
+                                .trim()
+                                .to_owned();
 
         list_edit(rl, &mut name, new_name, new_rating, new_note);
     }
 
     fn update_rating(rl: &mut RatedList) {
-        let mut name: String = get_input(String::from("Enter name of entry to update")).trim().to_owned();
-        let new_rating: u32 = get_input(String::from("Enter new rating")).trim().parse().expect("Rating was incorrectly entered...");
+        let mut name: String = get_input(String::from(
+                                    "Enter name of entry to update"
+                                ))
+                                .trim()
+                                .to_owned();
+        let new_rating: u32 = get_input(String::from(
+                                    "Enter new rating"
+                                ))
+                                .trim()
+                                .parse()
+                                .expect("Rating was incorrectly entered...");
 
         list_update_rating(rl, &mut name, new_rating);
     }
