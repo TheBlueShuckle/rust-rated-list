@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use chrono::{DateTime, Datelike, Local};
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize, Debug)]
 pub enum RatingSystem {
     FiveStars,
     TenStars,
@@ -82,9 +84,10 @@ impl RatingSystem {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 struct Entry {
     name: String,
-    date: DateTime<Local>,
+    // date: DateTime<Local>,
     rating: u32,
     system: RatingSystem,
     note: String,
@@ -93,14 +96,14 @@ struct Entry {
 impl Entry {
     fn new(
         name: String, 
-        date: DateTime<Local>, 
+        // date: DateTime<Local>, 
         rating: u32, 
         system: RatingSystem, 
         note: String
     ) -> Entry {
         return Entry {
             name,
-            date,
+            // date,
             rating,
             system,
             note
@@ -108,16 +111,19 @@ impl Entry {
     }
 
     fn to_string(&mut self) -> String {
-        return format!("{0}:\n    {1}\n    {2}-{3}-{4}\n    {5}\n", 
+        // return format!("{0}:\n    {1}\n    {2}-{3}-{4}\n    {5}\n", 
+
+        return format!("{0}:\n    {1}\n    {2}\n", 
             self.name, 
             self.system.rating_to_string(self.rating),
-            self.date.year(), 
-            self.date.month(), 
-            self.date.day(), 
+            // self.date.year(), 
+            // self.date.month(), 
+            // self.date.day(), 
             self.note);
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct RatedList { 
     name: String, 
     system: RatingSystem,
@@ -125,6 +131,10 @@ pub struct RatedList {
 }
 
 impl RatedList {
+    pub fn get_name(&self) -> String {
+        return self.name.clone();
+    }
+
     fn new(name: String, system: RatingSystem) -> RatedList {
         RatedList { name, system, table: HashMap::new() }
     }
@@ -153,17 +163,19 @@ impl RatedList {
 }
 
 pub mod list_handler {
+    use serde::{Deserialize, Serialize, de::{DeserializeOwned, DeserializeSeed}};
+    use std::{fs::{self, File, OpenOptions}, io::{BufReader, Read, Stderr}, sync::mpsc::RecvTimeoutError};
     use chrono::{DateTime, Local};
     use crate::list_handler::{Entry, RatedList, RatingSystem};
 
     fn entry_build(
         name: String, 
-        date: DateTime<Local>, 
+        // date: DateTime<Local>, 
         rating: u32, 
         system: RatingSystem, 
         note: String
     ) -> Entry {
-        return Entry::new(name, date, rating, system, note);
+        return Entry::new(name, /*date,*/ rating, system, note);
     }
 
     pub fn list_build(name: String, system: RatingSystem) -> RatedList {
@@ -174,7 +186,7 @@ pub mod list_handler {
         let date: DateTime<Local> = Local::now();
         let new_entry: Entry = entry_build(
                                 name.clone(), 
-                                date, 
+                                // date, 
                                 rating, 
                                 rl.system.clone(),
                                 note);
@@ -215,5 +227,29 @@ pub mod list_handler {
 
     pub fn list_to_string(rl: &mut RatedList) -> String {
         return rl.to_string();
+    }
+
+    pub fn list_save(rl: &mut RatedList) -> std::io::Result<()> {
+        let path: String = String::from("lists/");
+        let file_path: String = format!("{0}{1}", path, rl.get_name());
+
+        let serialized: String = serde_json::to_string(&rl).unwrap();
+
+        return fs::write(file_path, serialized);
+    }
+
+    pub fn list_load(name: String) -> RatedList {
+        let path: String = String::from("lists/");
+        let file_path: String = format!("{0}{1}", path, name);
+        let f: File = File::open(file_path).expect("Bruuuh");
+        let mut reader: BufReader<File> = BufReader::new(f);
+        
+        let mut deserialized: String = String::new();
+
+        reader.read_to_string(&mut deserialized).expect("ERROR");
+
+        let rl: RatedList = serde_json::from_str(&deserialized.as_str()).unwrap();
+
+        return rl;
     }
 }

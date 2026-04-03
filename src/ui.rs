@@ -1,11 +1,7 @@
 pub mod ui {
     use crate::list_handler::RatedList;
     use crate::list_handler::list_handler::{
-        list_add, 
-        list_edit, 
-        list_remove, 
-        list_to_string, 
-        list_update_rating
+        list_add, list_edit, list_load, list_remove, list_save, list_to_string, list_update_rating
     };
     use crate::list_handler::{self, list_handler::list_build};
     use std::io::{stdin};
@@ -13,10 +9,11 @@ pub mod ui {
     pub fn run(lists: &mut Vec<list_handler::RatedList>) {
         let mut is_running: bool = true;
 
-        lists.push(list_build(
-            String::from("New List"),
-            list_handler::RatingSystem::TenHalfStars
-        ));
+        // lists.push(list_build(
+        //     String::from("New List"),
+        //     list_handler::RatingSystem::TenHalfStars
+        // ));
+        lists.push(list_load(String::from("Films")));
 
         while is_running  {
             print_menu();
@@ -39,6 +36,7 @@ pub mod ui {
         println!("| E - Edit entry in list         |");
         println!("| U - Update Rating              |");
         println!("| L - Print list                 |");
+        println!("| S - Save list                  |");
         println!("| Q - Quit                       |");
         println!("+--------------------------------+");
     }
@@ -60,7 +58,7 @@ pub mod ui {
         let first_char: char = input.to_lowercase().chars().nth(0).unwrap(); 
 
         match first_char {
-            'a' | 'r' | 'e' | 'u'| 'l' | 'q' => return first_char,
+            'a' | 'r' | 'e' | 'u'| 'l' | 's' | 'q' => return first_char,
             _ => return '_'
         }
     }
@@ -72,6 +70,7 @@ pub mod ui {
             'e' => edit_list(rl),
             'u' => update_rating(rl),
             'l' => print_list(rl),
+            's' => save_list(rl),
             'q' => return true,
             _ => return false // TODO: Should probably return an error or whatever
         };
@@ -150,6 +149,13 @@ pub mod ui {
     fn print_list(rl: &mut RatedList) {
         println!(">>>Printing list<<<");
         println!("{}", list_to_string(rl));
-        return;
+    }
+
+    fn save_list(rl: &mut RatedList) {
+        println!("Saving {}", rl.get_name());
+        match list_save(rl) {
+            Ok(c) => return,
+            Err(e) => println!("!!!ERROR IN FILE HANDLING THINGY!!!"),
+        }
     }
 }

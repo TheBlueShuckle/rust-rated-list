@@ -6,8 +6,8 @@
     - [x] Entries contains: Name, Date, Stars, Notess
 - [x] Update ratings
 - [x] Lists stores name, type of rating system
-- [ ] Save lists to file
-- [ ] Load lists on startup
+- [x] Save lists to file
+- [x] Load lists on startup
 
 ### Optional
 - [ ] Save rating history of entry (show previous ratings of the entry)
