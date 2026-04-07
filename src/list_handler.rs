@@ -163,8 +163,7 @@ impl RatedList {
 }
 
 pub mod list_handler {
-    use serde::{Deserialize, Serialize, de::{DeserializeOwned, DeserializeSeed}};
-    use std::{fs::{self, File, OpenOptions}, io::{BufReader, Read, Stderr}, sync::mpsc::RecvTimeoutError};
+    use std::{fs::{self, File}, io::{BufReader, Read}};
     use chrono::{DateTime, Local};
     use crate::list_handler::{Entry, RatedList, RatingSystem};
 
@@ -241,7 +240,7 @@ pub mod list_handler {
     pub fn list_load(name: String) -> RatedList {
         let path: String = String::from("lists/");
         let file_path: String = format!("{0}{1}", path, name);
-        let f: File = File::open(file_path).expect("Bruuuh");
+        let f: File = File::open(file_path).expect("!!!ERROR IN list_load!!!");
         let mut reader: BufReader<File> = BufReader::new(f);
         
         let mut deserialized: String = String::new();

@@ -1,29 +1,110 @@
 pub mod ui {
     use crate::list_handler::RatedList;
     use crate::list_handler::list_handler::{
-        list_add, list_edit, list_load, list_remove, list_save, list_to_string, list_update_rating
+        list_build, list_add, list_edit, list_load, list_remove, list_save, list_to_string, list_update_rating
     };
-    use crate::list_handler::{self, list_handler::list_build};
+    use crate::list_handler::{self};
+    use std::fs::{self, ReadDir};
     use std::io::{stdin};
 
-    pub fn run(lists: &mut Vec<list_handler::RatedList>) {
+    pub fn run() {
+        const LISTS_PATH: &str = "./lists/";
+        let mut lists: Vec<RatedList> = load_lists(LISTS_PATH);
+
+        main_loop(&mut lists);
+
+        println!("Quitting...");
+    }
+
+    /* +-----------------------------------------------------------------------------------------+*/
+    /* |                                   Main loop functions                                   |*/
+    /* +-----------------------------------------------------------------------------------------+*/
+
+    fn main_loop(lists: &mut Vec<RatedList>) {
         let mut is_running: bool = true;
 
-        // lists.push(list_build(
-        //     String::from("New List"),
-        //     list_handler::RatingSystem::TenHalfStars
-        // ));
-        lists.push(list_load(String::from("Films")));
-
         while is_running  {
+            print_main_menu(&lists);
+            let input: String = get_input(String::from("What do you want to do?"));
+
+            let command: char = parse_command_main(input);
+            is_running = !exec_command_main(command, lists);
+        }
+    }
+
+    fn print_main_menu(lists: &Vec<RatedList>) {
+        println!("+--------------------------------+");
+        println!("| Welcome to Rated List Creator! |");
+        println!("+--------------------------------+");
+        println!("| Below are all saved lists. If  |");
+        println!("| you wish to create a new list  |");
+        println!("| enter 'N', otherwise type the  |");
+        println!("| number corresponding to the    |");
+        println!("| list to load and edit it.      |");
+        println!("| To quit, type 'Q'.             |");
+        println!("+--------------------------------+");
+
+        let mut i: u32 = 1;
+
+        for rl in lists {
+            println!("{0}. {1}", i, rl.get_name());
+            i += 1;
+        }
+    }
+
+    fn parse_command_main(input: String) -> char {
+        if input.is_empty() {
+            return '_';
+        }
+
+        let first_char: char = input.to_lowercase().chars().nth(0).unwrap(); 
+        
+        match first_char {
+            'n' | 'q' => return first_char,
+            _ => {
+                if first_char.is_digit(10) {
+                    return first_char;
+                }
+
+                return '_';
+            }
+        }
+    }
+
+    fn exec_command_main(command: char, lists: &mut Vec<RatedList>) -> bool {
+        match command {
+            'n' => create_new_list(lists),
+            'q' => return true,
+            _ => {
+                if command.is_digit(10) {
+                    let i: usize = command.to_digit(10).unwrap() as usize;
+
+                    if i > 0 && i <= lists.len() {
+                        list_loop(&mut lists[i - 1]);
+                    }
+                }
+
+                return false; // TODO: Should probably return an error or whatever
+            }
+        };
+
+        return false;
+    }
+
+    /* +-----------------------------------------------------------------------------------------+*/
+    /* |                                   List loop functions                                   |*/
+    /* +-----------------------------------------------------------------------------------------+*/
+
+    fn list_loop(rl: &mut RatedList) {
+        let mut is_running: bool = true;
+
+        while is_running {
             print_menu();
             let input: String = get_input(String::from("What do you want to do?"));
 
-            let command: char = parse_command(input);
-            is_running = !exec_command(command, &mut lists[0]);
+            let command: char = parse_command_list(input);
+            is_running = !exec_command_list(command, rl);
         }
-
-        println!("Quitting...");
     }
 
     fn print_menu() {
@@ -41,16 +122,7 @@ pub mod ui {
         println!("+--------------------------------+");
     }
 
-    fn get_input(question: String) -> String {
-        let mut s: String = String::new();
-
-        println!("{}: ", question);
-        stdin().read_line(&mut s).expect("Did not enter a correct string");
-
-        return s;
-    }
-
-    fn parse_command(input: String) -> char {
+    fn parse_command_list(input: String) -> char {
         if input.is_empty() {
             return '_';
         }
@@ -63,7 +135,7 @@ pub mod ui {
         }
     }
 
-    fn exec_command(command: char, rl: &mut RatedList) -> bool {
+    fn exec_command_list(command: char, rl: &mut RatedList) -> bool {
         match command {
             'a' => add_to_list(rl),
             'r' => remove_from_list(rl),
@@ -76,6 +148,46 @@ pub mod ui {
         };
 
         return false;
+    }
+
+    /* +-----------------------------------------------------------------------------------------+*/
+    /* |                                     Other functions                                     |*/
+    /* +-----------------------------------------------------------------------------------------+*/
+
+    fn create_new_list(lists: &mut Vec<RatedList>) {
+        let name = get_input(String::from(
+                                    "Enter name of new list"
+                                ))
+                                .trim()
+                                .to_owned();
+        lists.push(list_build(name, list_handler::RatingSystem::TenHalfStars));
+    }
+
+    fn load_lists(path: &str) -> Vec<RatedList> {
+        let mut lists: Vec<RatedList> = Vec::new();
+        let paths: ReadDir = fs::read_dir(path).unwrap();
+
+        for list_path in paths {
+            let file_name: String = list_path.unwrap().file_name().display().to_string();
+
+            if file_name == ".gitignore" { // Skip the gitignore; theres probably a better way of doing this or whatever
+                continue;
+            }
+
+            println!("{}", file_name);
+            lists.push(list_load(file_name));
+        }
+
+        return lists;
+    }
+
+    fn get_input(question: String) -> String {
+        let mut s: String = String::new();
+
+        println!("{}: ", question);
+        stdin().read_line(&mut s).expect("Did not enter a correct string");
+
+        return s;
     }
 
     fn add_to_list(rl: &mut RatedList) {
@@ -154,8 +266,8 @@ pub mod ui {
     fn save_list(rl: &mut RatedList) {
         println!("Saving {}", rl.get_name());
         match list_save(rl) {
-            Ok(c) => return,
-            Err(e) => println!("!!!ERROR IN FILE HANDLING THINGY!!!"),
+            Ok(_c) => return,
+            Err(_e) => println!("!!!ERROR IN FILE HANDLING THINGY!!!"),
         }
     }
 }

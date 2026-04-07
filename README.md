@@ -11,7 +11,7 @@
 
 ### Optional
 - [ ] Save rating history of entry (show previous ratings of the entry)
-- [ ] Create multiple lists and swapping between them
+- [x] Create multiple lists and swapping between them
 - [ ] Export list to MD-file
 - [ ] Watchlists
 - [ ] Sorting lists
