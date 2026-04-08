@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use chrono::{DateTime, Datelike, Local};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -63,7 +62,7 @@ impl RatingSystem {
                 let mut count: u32 = 0;
 
                 while count < 10 {
-                    if count > rating {
+                    if count >= rating {
                         string_rating.push_str("☆ ");
                     }
 
@@ -87,7 +86,7 @@ impl RatingSystem {
 #[derive(Serialize, Deserialize, Debug)]
 struct Entry {
     name: String,
-    // date: DateTime<Local>,
+    date: String,
     rating: u32,
     system: RatingSystem,
     note: String,
@@ -96,14 +95,14 @@ struct Entry {
 impl Entry {
     fn new(
         name: String, 
-        // date: DateTime<Local>, 
+        date: String, 
         rating: u32, 
         system: RatingSystem, 
         note: String
     ) -> Entry {
         return Entry {
             name,
-            // date,
+            date,
             rating,
             system,
             note
@@ -111,14 +110,10 @@ impl Entry {
     }
 
     fn to_string(&mut self) -> String {
-        // return format!("{0}:\n    {1}\n    {2}-{3}-{4}\n    {5}\n", 
-
-        return format!("{0}:\n    {1}\n    {2}\n", 
+        return format!("{0}:\n    {1}\n    {2}\n    {3}\n", 
             self.name, 
             self.system.rating_to_string(self.rating),
-            // self.date.year(), 
-            // self.date.month(), 
-            // self.date.day(), 
+            self.date, 
             self.note);
     }
 }
@@ -164,17 +159,17 @@ impl RatedList {
 
 pub mod list_handler {
     use std::{fs::{self, File}, io::{BufReader, Read}};
-    use chrono::{DateTime, Local};
+    use chrono::{DateTime, Datelike, Local};
     use crate::list_handler::{Entry, RatedList, RatingSystem};
 
     fn entry_build(
         name: String, 
-        // date: DateTime<Local>, 
+        date: String, 
         rating: u32, 
         system: RatingSystem, 
         note: String
     ) -> Entry {
-        return Entry::new(name, /*date,*/ rating, system, note);
+        return Entry::new(name, date, rating, system, note);
     }
 
     pub fn list_build(name: String, system: RatingSystem) -> RatedList {
@@ -183,9 +178,10 @@ pub mod list_handler {
 
     pub fn list_add(rl: &mut RatedList, name: String, rating: u32, note: String) {
         let date: DateTime<Local> = Local::now();
+        let date_str: String = format!("{0}-{1}-{2}", date.year(), date.month(), date.day());
         let new_entry: Entry = entry_build(
                                 name.clone(), 
-                                // date, 
+                                date_str, 
                                 rating, 
                                 rl.system.clone(),
                                 note);
