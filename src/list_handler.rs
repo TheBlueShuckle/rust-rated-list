@@ -200,19 +200,16 @@ pub mod list_handler {
         new_rating: u32, 
         new_note: String
     ) {
-        let to_edit: &mut Entry = rl.get(name);
+        let old_entry: &mut Entry = rl.get(name);
+        let new_entry: Entry = entry_build(
+            if !new_name.is_empty() { new_name } else { old_entry.name.clone() }, 
+            old_entry.date.clone(), 
+            if new_rating != 0 { new_rating } else { old_entry.rating }, 
+            old_entry.system.clone(), 
+            if !new_note.is_empty() { new_note } else { old_entry.note.clone() });
 
-        if !new_name.is_empty() {
-            to_edit.name = new_name;
-        }
-
-        if new_rating != 0 {
-            to_edit.rating = new_rating;
-        }
-
-        if !new_note.is_empty() {
-            to_edit.note = new_note;
-        }
+        rl.remove(name);
+        rl.add(new_entry.name.clone(), new_entry);
     }
 
     pub fn list_update_rating(rl: &mut RatedList, name: &mut String, new_rating: u32) {
