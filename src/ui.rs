@@ -1,4 +1,6 @@
 pub mod ui {
+    use chrono::NaiveDate;
+
     use crate::list_handler::RatedList;
     use crate::list_handler::list_handler::{
         list_build, list_add, list_edit, list_load, list_remove, list_save, list_to_string, list_update_rating
@@ -227,6 +229,18 @@ pub mod ui {
                                 ))
                                 .trim()
                                 .to_owned();
+
+
+        let mut new_date: String = String::new();
+        let change_date: String = get_input(
+                            String::from("Do you wish to edit the date?, y for yes"
+                                    ));
+        if change_date.to_lowercase().chars().nth(0).unwrap() == 'y' {
+            let datestring: String = get_date_from_input().trim().to_string();
+            println!("{}", datestring);
+            new_date = NaiveDate::parse_from_str(datestring.as_str(), "%Y-%m-%d").expect(/*datestring.as_str()*/ "Error in dartetete").to_string();
+        }
+
         let new_rating: u32 = get_input(String::from(
                                     "Enter new rating if you wish to change it"
                                 ))
@@ -239,7 +253,15 @@ pub mod ui {
                                 .trim()
                                 .to_owned();
 
-        list_edit(rl, &mut name, new_name, new_rating, new_note);
+        list_edit(rl, &mut name, new_name, new_date, new_rating, new_note);
+    }
+
+    fn get_date_from_input() -> String {
+        let y: String = get_input(String::from("Enter new year (eg 2020, 2016, 1984)")).trim().to_string();
+        let m: String = get_input(String::from("Enter new month (eg 02, 07, 10)")).trim().to_string();
+        let d: String = get_input(String::from("Enter new day (eg 05, 19, 31)")).trim().to_string();
+
+        return format!("{0}-{1}-{2}", y, m, d);
     }
 
     fn update_rating(rl: &mut RatedList) {

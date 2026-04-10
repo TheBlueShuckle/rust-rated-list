@@ -15,7 +15,7 @@
 - [ ] Export list to MD-file (or possibly HTML)
 - [ ] Watchlists
 - [ ] Sorting lists
-- [ ] Change date of rating
+- [x] Change date of rating
 
 ### Very Optional
 - [ ] Graphical interface

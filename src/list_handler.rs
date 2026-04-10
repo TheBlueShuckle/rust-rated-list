@@ -159,7 +159,7 @@ impl RatedList {
 
 pub mod list_handler {
     use std::{fs::{self, File}, io::{BufReader, Read}};
-    use chrono::{DateTime, Datelike, Local};
+    use chrono::{Local};
     use crate::list_handler::{Entry, RatedList, RatingSystem};
 
     fn entry_build(
@@ -177,8 +177,7 @@ pub mod list_handler {
     }
 
     pub fn list_add(rl: &mut RatedList, name: String, rating: u32, note: String) {
-        let date: DateTime<Local> = Local::now();
-        let date_str: String = format!("{0}-{1}-{2}", date.year(), date.month(), date.day());
+        let date_str: String = Local::now().date_naive().to_string();
         let new_entry: Entry = entry_build(
                                 name.clone(), 
                                 date_str, 
@@ -197,13 +196,14 @@ pub mod list_handler {
         rl: &mut RatedList, 
         name: &mut String, 
         new_name: String, 
+        new_date: String,
         new_rating: u32, 
         new_note: String
     ) {
         let old_entry: &mut Entry = rl.get(name);
         let new_entry: Entry = entry_build(
             if !new_name.is_empty() { new_name } else { old_entry.name.clone() }, 
-            old_entry.date.clone(), 
+            if !new_date.is_empty() { new_date } else { old_entry.date.clone() }, 
             if new_rating != 0 { new_rating } else { old_entry.rating }, 
             old_entry.system.clone(), 
             if !new_note.is_empty() { new_note } else { old_entry.note.clone() });
