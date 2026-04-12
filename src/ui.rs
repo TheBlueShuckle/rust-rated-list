@@ -1,11 +1,13 @@
 pub mod ui {
     use chrono::NaiveDate;
 
-    use crate::list_handler::RatedList;
+    use crate::list_handler::{self, RatedList};
     use crate::list_handler::list_handler::{
         list_build, list_add, list_edit, list_load, list_remove, list_save, list_to_string, list_update_rating
     };
-    use crate::list_handler::{self};
+    use crate::list_exporter::list_exporter::{ 
+        export
+    };
     use std::fs::{self, ReadDir};
     use std::io::{stdin};
 
@@ -120,6 +122,7 @@ pub mod ui {
         println!("| U - Update Rating              |");
         println!("| L - Print list                 |");
         println!("| S - Save list                  |");
+        println!("| X - Export list to md file     |");
         println!("| Q - Quit                       |");
         println!("+--------------------------------+");
     }
@@ -132,7 +135,7 @@ pub mod ui {
         let first_char: char = input.to_lowercase().chars().nth(0).unwrap(); 
 
         match first_char {
-            'a' | 'r' | 'e' | 'u'| 'l' | 's' | 'q' => return first_char,
+            'a' | 'r' | 'e' | 'u'| 'l' | 's' | 'x' | 'q' => return first_char,
             _ => return '_'
         }
     }
@@ -145,6 +148,7 @@ pub mod ui {
             'u' => update_rating(rl),
             'l' => print_list(rl),
             's' => save_list(rl),
+            'x' => export_list(rl),
             'q' => return true,
             _ => return false // TODO: Should probably return an error or whatever
         };
@@ -291,5 +295,9 @@ pub mod ui {
             Ok(_c) => return,
             Err(_e) => println!("!!!ERROR IN FILE HANDLING THINGY!!!"),
         }
+    }
+
+    fn export_list(rl: &mut RatedList) {
+        export(rl);
     }
 }

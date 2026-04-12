@@ -122,7 +122,7 @@ impl Entry {
 pub struct RatedList { 
     name: String, 
     system: RatingSystem,
-    table: HashMap<String, Entry>,
+    pub table: HashMap<String, Entry>,
 }
 
 impl RatedList {
@@ -142,8 +142,12 @@ impl RatedList {
         self.table.remove(name);
     }
 
-    fn get(&mut self, name: &mut String) -> &mut Entry {
+    fn get(&mut self, name: &String) -> &mut Entry {
         return self.table.get_mut(name).expect("Name was not in list...");
+    }
+
+    pub fn get_names(&mut self) -> Vec<&String> {
+        return self.table.keys().collect();
     }
 
     fn to_string(&mut self) -> String {
@@ -243,5 +247,9 @@ pub mod list_handler {
         let rl: RatedList = serde_json::from_str(&deserialized.as_str()).unwrap();
 
         return rl;
+    }
+
+    pub fn list_entry_to_string(rl: &mut RatedList, name: &String) -> String {
+        return rl.get(name).to_string();
     }
 }
