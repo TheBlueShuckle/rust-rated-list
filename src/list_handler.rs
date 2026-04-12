@@ -109,8 +109,8 @@ impl Entry {
         };
     }
 
-    fn to_string(&mut self) -> String {
-        return format!("{0}:\n    {1}\n    {2}\n    {3}\n", 
+    fn to_string(&self) -> String {
+        return format!("{0}:  \n>    {1}  \n>    {2}  \n>    {3}\n", 
             self.name, 
             self.system.rating_to_string(self.rating),
             self.date, 
@@ -122,7 +122,7 @@ impl Entry {
 pub struct RatedList { 
     name: String, 
     system: RatingSystem,
-    pub table: HashMap<String, Entry>,
+    table: HashMap<String, Entry>,
 }
 
 impl RatedList {
@@ -131,7 +131,7 @@ impl RatedList {
     }
 
     fn new(name: String, system: RatingSystem) -> RatedList {
-        RatedList { name, system, table: HashMap::new() }
+        return RatedList { name, system, table: HashMap::new() }
     }
 
     fn add(&mut self, name: String, entry: Entry) {
@@ -146,8 +146,12 @@ impl RatedList {
         return self.table.get_mut(name).expect("Name was not in list...");
     }
 
-    pub fn get_names(&mut self) -> Vec<&String> {
+    pub fn entry_names(&self) -> Vec<&String> {
         return self.table.keys().collect();
+    }
+
+    pub fn entry_to_string(&self, name: &String) -> String {
+        return self.table.get(name).expect("Name was not in hashmap").to_string();
     }
 
     fn to_string(&mut self) -> String {
@@ -247,9 +251,5 @@ pub mod list_handler {
         let rl: RatedList = serde_json::from_str(&deserialized.as_str()).unwrap();
 
         return rl;
-    }
-
-    pub fn list_entry_to_string(rl: &mut RatedList, name: &String) -> String {
-        return rl.get(name).to_string();
     }
 }
