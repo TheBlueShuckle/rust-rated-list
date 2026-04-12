@@ -24,6 +24,7 @@
 ## Submodules
 - UI Handler
 - List Handler
+- List Exporter
 - Integration tests
 
 Follow this: https://dev.to/sgchris/how-to-structure-a-rust-project-idiomatically-500k
