@@ -245,18 +245,26 @@ pub mod list_handler {
     }
 
     pub fn list_save(rl: &mut RatedList) -> std::io::Result<()> {
-        let path: String = String::from("lists/");
-        let file_path: String = format!("{0}{1}", path, rl.get_name());
+        let path: &str = "./lists";
+        let dir_path: String = format!("{0}/{1}", path, rl.get_name().to_lowercase()); // Ex lists/albums
+        let file_path: String = format!("{0}/{1}-main", dir_path, rl.get_name().to_lowercase()); // Ex lists/albums/Albums
 
         let serialized: String = serde_json::to_string(&rl).unwrap();
 
+        println!("{}", dir_path);
+
+        match fs::create_dir_all(dir_path) {
+            Ok(_) => {println!("success")},
+            Err(_m) => {println!("fail :(: {}", _m)},
+        }
         return fs::write(file_path, serialized);
     }
 
-    pub fn list_load(name: String) -> RatedList {
-        let path: String = String::from("lists/");
-        let file_path: String = format!("{0}{1}", path, name);
-        let f: File = File::open(file_path).expect("!!!ERROR IN list_load!!!");
+    pub fn list_load(folder_name: String) -> RatedList {
+        let path: &str = "./lists";
+        let dir_path: String = format!("{0}/{1}", path, folder_name.to_lowercase());
+        let main_file_path: String = format!("{0}/{1}-main", dir_path, folder_name.to_lowercase());
+        let f: File = File::open(main_file_path).expect("!!!ERROR IN list_load, COULD NOT FIND MAIN FILE!!!");
         let mut reader: BufReader<File> = BufReader::new(f);
         
         let mut deserialized: String = String::new();

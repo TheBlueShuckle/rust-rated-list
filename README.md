@@ -13,7 +13,7 @@
 - [ ] Save rating history of entry (show previous ratings of the entry)
 - [x] Create multiple lists and swapping between them
 - [x] Export list to MD-file (or possibly HTML)
-- [ ] Watchlists
+- [x] Watchlists
 - [ ] Sorting lists
 - [x] Change date of rating
 

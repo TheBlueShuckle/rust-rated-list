@@ -15,6 +15,15 @@ pub mod ui {
         list_save,
         list_to_string,
     };
+    use crate::watchlist_handler::WatchList;
+    use crate::watchlist_handler::watchlist_handler::{
+        watchlist_add,
+        watchlist_remove,
+        watchlist_edit,
+        watchlist_to_string,
+        watchlist_save,
+        watchlist_load_or_create,
+    };
     use crate::list_exporter::list_exporter::{
         export,
     };
@@ -138,9 +147,11 @@ pub mod ui {
         println!("| R - Remove from list           |");
         println!("| E - Edit entry in list         |");
         println!("| U - Update Rating              |");
-        println!("| L - Print list                 |");
+        println!("| P - Print list                 |");
         println!("| S - Save list                  |");
         println!("| X - Export list to md file     |");
+        println!("| L - See watchlist              |");
+        println!("| W - Go to watchlist            |");
         println!("| Q - Quit                       |");
         println!("+--------------------------------+");
     }
@@ -153,7 +164,7 @@ pub mod ui {
         let first_char: char = input.to_lowercase().chars().nth(0).unwrap(); 
 
         match first_char {
-            'a' | 'r' | 'e' | 'u'| 'l' | 's' | 'x' | 'q' => return first_char,
+            'a' | 'r' | 'e' | 'u'| 'p' | 's' | 'x' | 'l' | 'w' | 'q' => return first_char,
             _ => return '_'
         }
     }
@@ -164,19 +175,91 @@ pub mod ui {
             'r' => remove_from_list(rl),
             'e' => edit_list(rl),
             'u' => update_rating(rl),
-            'l' => print_list(rl),
+            'p' => print_list(rl),
             's' => save_list(rl),
             'x' => export_list(rl),
+            'l' => print_wl_from_rl(rl),
+            'w' => watchlist_loop(rl),
             'q' => return true,
-            _ => return false // TODO: Should probably return an error or whatever
+            _ => return false // TODO: Should probably print an error or whatever
         };
 
         return false;
     }
 
     /* +-----------------------------------------------------------------------------------------+*/
+    /* |                                 Watchlist loop functions                                |*/
+    /* +-----------------------------------------------------------------------------------------+*/
+
+    fn watchlist_loop(rl: &mut RatedList) {
+        let mut is_running: bool = true;
+
+        let mut wl: WatchList = watchlist_load_or_create(rl.get_name());
+
+        while is_running {
+            print_watchlist_menu();
+            let input: String = get_input("What do you want to do?");
+
+            let command: char = parse_command_watchlist(input);
+            is_running = !exec_command_watchlist(command, &mut wl);
+        }
+    }
+
+    fn print_watchlist_menu() {
+        println!("+--------------------------------+");
+        println!("| Welcome to the watchlist editor|");
+        println!("+--------------------------------+");
+        println!("| Commands:                      |");
+        println!("| A - Add to watchlist           |");
+        println!("| R - Remove from watchlist      |");
+        println!("| E - Edit entry in watchlist    |");
+        println!("| L - Print watchlist            |");
+        println!("| S - Save watchlist             |");
+        println!("| Q - Quit                       |");
+        println!("+--------------------------------+");
+    }
+
+    fn parse_command_watchlist(input: String) -> char {
+        if input.is_empty() {
+            return '_';
+        }
+
+        let first_char: char = input.to_lowercase().chars().nth(0).unwrap(); 
+
+        match first_char {
+            'a' | 'r' | 'e' | 'l' | 's' | 'q' => return first_char,
+            _ => return '_'
+        }
+    }
+
+    fn exec_command_watchlist(command: char, wl: &mut WatchList) -> bool {
+        match command {
+            'a' => add_to_watchlist(wl),
+            'r' => remove_from_watchlist(wl),
+            'e' => edit_watchlist(wl),
+            'l' => print_watchlist(wl),
+            's' => save_watchlist(wl),
+            'q' => return true,
+            _ => return false // TODO: Should probably return an error or whatever
+        };
+
+        return false;
+    }
+    
+    /* +-----------------------------------------------------------------------------------------+*/
     /* |                                     Other functions                                     |*/
     /* +-----------------------------------------------------------------------------------------+*/
+
+    fn get_input(question: &str) -> String {
+        let mut s: String = String::new();
+
+        println!("{}: ", question);
+        stdin().read_line(&mut s).expect("Did not enter a correct string");
+
+        return s;
+    }
+
+    // List functions
 
     fn create_new_list(lists: &mut Vec<RatedList>) {
         let name = get_input("Enter name of new list")
@@ -201,15 +284,6 @@ pub mod ui {
         }
 
         return lists;
-    }
-
-    fn get_input(question: &str) -> String {
-        let mut s: String = String::new();
-
-        println!("{}: ", question);
-        stdin().read_line(&mut s).expect("Did not enter a correct string");
-
-        return s;
     }
 
     fn add_to_list(rl: &mut RatedList) {
@@ -307,5 +381,72 @@ pub mod ui {
 
     fn export_list(rl: &mut RatedList) {
         export(rl);
+    }
+
+    fn print_wl_from_rl(rl: &mut RatedList) {
+        let mut wl: WatchList = watchlist_load_or_create(rl.get_name());
+
+        print_watchlist(&mut wl);
+    }
+
+    // Watchlist functions
+
+    fn add_to_watchlist(wl: &mut WatchList) {
+        println!(">>>Adding to watchlist<<<");
+        let name: String = get_input("Enter name of entry")
+                                .trim()
+                                .to_owned();
+        let note: String = get_input("Enter note (may leave empty)")
+                                .trim()
+                                .to_owned();
+        watchlist_add(wl, name, note);
+    }
+
+    fn remove_from_watchlist(wl: &mut WatchList) {
+        println!(">>>Removing from watchlist<<<");
+        let mut name: String = get_input("What entry do you want to remove?")
+                                    .trim()
+                                    .to_owned();
+        watchlist_remove(wl, &mut name);
+        return;
+    }
+
+    fn edit_watchlist(wl: &mut WatchList) {
+        let mut name: String = get_input("Enter current name of entry to edit")
+                                    .trim()
+                                    .to_owned();
+        let new_name: String = get_input("Enter new name if you wish to change it")
+                                    .trim()
+                                    .to_owned();
+
+
+        let mut new_date: String = String::new();
+        let change_date: String = get_input("Do you wish to edit the date?, y for yes");
+        if change_date.to_lowercase().chars().nth(0).unwrap() == 'y' {
+            let datestring: String = get_date_from_input().trim().to_string();
+            println!("{}", datestring);
+            new_date = NaiveDate::parse_from_str(datestring.as_str(), "%Y-%m-%d")
+                                        .expect(/*datestring.as_str()*/ "Error in dartetete")
+                                        .to_string();
+        }
+
+        let new_note: String = get_input("Enter new note if you wish to change it")
+                                    .trim()
+                                    .to_owned();
+
+        watchlist_edit(wl, &mut name, new_name, new_date, new_note);
+    }
+
+    fn print_watchlist(wl: &mut WatchList) {
+        println!(">>>Printing watchlist<<<");
+        println!("{}", watchlist_to_string(wl));
+    }
+
+    fn save_watchlist(wl: &mut WatchList) {
+        println!("Saving {}", wl.get_name());
+        match watchlist_save(wl) {
+            Ok(_c) => return,
+            Err(_e) => println!("!!!ERROR IN FILE HANDLING THINGY!!!"),
+        }
     }
 }
