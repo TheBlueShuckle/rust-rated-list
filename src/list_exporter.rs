@@ -1,6 +1,11 @@
 pub mod list_exporter {
-    use std::{fs::File, io::Write};
-    use crate::list_handler::{RatedList};
+    use std::{
+        fs::File, 
+        io::Write
+    };
+    use crate::list_handler::{
+        RatedList
+    };
 
     pub fn export(rl: &mut RatedList) {
         let file_name: String = format!("out/{}.md", rl.get_name());

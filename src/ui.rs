@@ -1,15 +1,30 @@
 pub mod ui {
     use chrono::NaiveDate;
 
-    use crate::list_handler::{self, RatedList};
+    use crate::list_handler::{
+        RatedList,
+        RatingSystem,
+    };
     use crate::list_handler::list_handler::{
-        list_build, list_add, list_edit, list_load, list_remove, list_save, list_to_string, list_update_rating
+        list_add,
+        list_remove,
+        list_edit,
+        list_update_rating,
+        list_build,
+        list_load,
+        list_save,
+        list_to_string,
     };
-    use crate::list_exporter::list_exporter::{ 
-        export
+    use crate::list_exporter::list_exporter::{
+        export,
     };
-    use std::fs::{self, ReadDir};
-    use std::io::{stdin};
+    use std::fs::{
+        self, 
+        ReadDir,
+    };
+    use std::io::{
+        stdin,
+    };
 
     pub fn run() {
         const LISTS_PATH: &str = "./lists/";
@@ -29,7 +44,7 @@ pub mod ui {
 
         while is_running  {
             print_main_menu(&lists);
-            let input: String = get_input(String::from("What do you want to do?"));
+            let input: String = get_input("What do you want to do?");
 
             let command: char = parse_command_main(input);
             is_running = !exec_command_main(command, lists);
@@ -61,7 +76,10 @@ pub mod ui {
             return '_';
         }
 
-        let first_char: char = input.to_lowercase().chars().nth(0).unwrap(); 
+        let first_char: char = input.to_lowercase()
+                                    .chars()
+                                    .nth(0)
+                                    .unwrap(); 
         
         match first_char {
             'n' | 'q' => return first_char,
@@ -103,15 +121,15 @@ pub mod ui {
         let mut is_running: bool = true;
 
         while is_running {
-            print_menu();
-            let input: String = get_input(String::from("What do you want to do?"));
+            print_list_menu();
+            let input: String = get_input("What do you want to do?");
 
             let command: char = parse_command_list(input);
             is_running = !exec_command_list(command, rl);
         }
     }
 
-    fn print_menu() {
+    fn print_list_menu() {
         println!("+--------------------------------+");
         println!("| Welcome to Rated List Creator! |");
         println!("+--------------------------------+");
@@ -161,12 +179,10 @@ pub mod ui {
     /* +-----------------------------------------------------------------------------------------+*/
 
     fn create_new_list(lists: &mut Vec<RatedList>) {
-        let name = get_input(String::from(
-                                    "Enter name of new list"
-                                ))
+        let name = get_input("Enter name of new list")
                                 .trim()
                                 .to_owned();
-        lists.push(list_build(name, list_handler::RatingSystem::TenHalfStars));
+        lists.push(list_build(name, RatingSystem::TenHalfStars));
     }
 
     fn load_lists(path: &str) -> Vec<RatedList> {
@@ -187,7 +203,7 @@ pub mod ui {
         return lists;
     }
 
-    fn get_input(question: String) -> String {
+    fn get_input(question: &str) -> String {
         let mut s: String = String::new();
 
         println!("{}: ", question);
@@ -198,88 +214,80 @@ pub mod ui {
 
     fn add_to_list(rl: &mut RatedList) {
         println!(">>>Adding to list<<<");
-        let name: String = get_input(String::from("Enter name of entry"))
-                            .trim()
-                            .to_owned();
-        let rating: u32 = get_input(String::from("Enter rating"))
-                            .trim()
-                            .parse()
-                            .expect("Rating was incorrectly entered...");
-        let note: String = get_input(String::from("Enter note (may leave empty)"))
-                            .trim()
-                            .to_owned();
+        let name: String = get_input("Enter name of entry")
+                                .trim()
+                                .to_owned();
+        let rating: u32 = get_input("Enter rating")
+                                .trim()
+                                .parse()
+                                .expect("Rating was incorrectly entered...");
+        let note: String = get_input("Enter note (may leave empty)")
+                                .trim()
+                                .to_owned();
         list_add(rl, name, rating, note);
     }
 
     fn remove_from_list(rl: &mut RatedList) {
         println!(">>>Removing from list<<<");
-        let mut name: String = get_input(String::from(
-                                    "What entry do you want to remove?"
-                                ))
-                                .trim()
-                                .to_owned();
+        let mut name: String = get_input("What entry do you want to remove?")
+                                    .trim()
+                                    .to_owned();
         list_remove(rl, &mut name);
         return;
     }
 
     fn edit_list(rl: &mut RatedList) {
-        let mut name: String = get_input(String::from(
-                                    "Enter current name of entry to edit"
-                                ))
-                                .trim()
-                                .to_owned();
-        let new_name: String = get_input(String::from(
-                                    "Enter new name if you wish to change it"
-                                ))
-                                .trim()
-                                .to_owned();
+        let mut name: String = get_input("Enter current name of entry to edit")
+                                    .trim()
+                                    .to_owned();
+        let new_name: String = get_input("Enter new name if you wish to change it")
+                                    .trim()
+                                    .to_owned();
 
 
         let mut new_date: String = String::new();
-        let change_date: String = get_input(
-                            String::from("Do you wish to edit the date?, y for yes"
-                                    ));
+        let change_date: String = get_input("Do you wish to edit the date?, y for yes");
         if change_date.to_lowercase().chars().nth(0).unwrap() == 'y' {
             let datestring: String = get_date_from_input().trim().to_string();
             println!("{}", datestring);
-            new_date = NaiveDate::parse_from_str(datestring.as_str(), "%Y-%m-%d").expect(/*datestring.as_str()*/ "Error in dartetete").to_string();
+            new_date = NaiveDate::parse_from_str(datestring.as_str(), "%Y-%m-%d")
+                                        .expect(/*datestring.as_str()*/ "Error in dartetete")
+                                        .to_string();
         }
 
-        let new_rating: u32 = get_input(String::from(
-                                    "Enter new rating if you wish to change it"
-                                ))
-                                .trim()
-                                .parse()
-                                .expect("Rating was incorrectly entered...");
-        let new_note: String = get_input(String::from(
-                                    "Enter new note if you wish to change it"
-                                ))
-                                .trim()
-                                .to_owned();
+        let new_rating: u32 = get_input("Enter new rating if you wish to change it")
+                                    .trim()
+                                    .parse()
+                                    .expect("Rating was incorrectly entered...");
+        let new_note: String = get_input("Enter new note if you wish to change it")
+                                    .trim()
+                                    .to_owned();
 
         list_edit(rl, &mut name, new_name, new_date, new_rating, new_note);
     }
 
     fn get_date_from_input() -> String {
-        let y: String = get_input(String::from("Enter new year (eg 2020, 2016, 1984)")).trim().to_string();
-        let m: String = get_input(String::from("Enter new month (eg 02, 07, 10)")).trim().to_string();
-        let d: String = get_input(String::from("Enter new day (eg 05, 19, 31)")).trim().to_string();
+        let y: String = get_input("Enter new year (eg 2020, 2016, 1984)")
+                            .trim()
+                            .to_string();
+        let m: String = get_input("Enter new month (eg 02, 07, 10)")
+                            .trim()
+                            .to_string();
+        let d: String = get_input("Enter new day (eg 05, 19, 31)")
+                            .trim()
+                            .to_string();
 
         return format!("{0}-{1}-{2}", y, m, d);
     }
 
     fn update_rating(rl: &mut RatedList) {
-        let mut name: String = get_input(String::from(
-                                    "Enter name of entry to update"
-                                ))
-                                .trim()
-                                .to_owned();
-        let new_rating: u32 = get_input(String::from(
-                                    "Enter new rating"
-                                ))
-                                .trim()
-                                .parse()
-                                .expect("Rating was incorrectly entered...");
+        let mut name: String = get_input("Enter name of entry to update")
+                                    .trim()
+                                    .to_owned();
+        let new_rating: u32 = get_input("Enter new rating")
+                                    .trim()
+                                    .parse()
+                                    .expect("Rating was incorrectly entered...");
 
         list_update_rating(rl, &mut name, new_rating);
     }

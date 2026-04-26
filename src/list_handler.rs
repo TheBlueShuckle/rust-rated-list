@@ -166,9 +166,24 @@ impl RatedList {
 }
 
 pub mod list_handler {
-    use std::{fs::{self, File}, io::{BufReader, Read}};
-    use chrono::{Local};
-    use crate::list_handler::{Entry, RatedList, RatingSystem};
+    use std::{
+        fs::{
+            self, 
+            File
+        }, 
+        io::{
+            BufReader, 
+            Read
+        }
+    };
+    use chrono::{
+        Local
+    };
+    use crate::list_handler::{
+        Entry, 
+        RatedList, 
+        RatingSystem
+    };
 
     fn entry_build(
         name: String, 
